@@ -1,0 +1,59 @@
+name: Android release (APK + GitHub Release)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/android-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Regenerate Gradle wrapper (jar is not stored in this repo)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+      - run: gradle wrapper --gradle-version 9.3.1
+        working-directory: frontend/android
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - name: Publish GitHub release with the APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: Tilawah v1.0.0 — Android app
+          body: |
+            First Android release of **Tilawah** — a free, offline-first Quran app.
+
+            - Complete verified Uthmani Quran (114 surahs, 6,236 ayahs) bundled in the app
+            - Read, listen to reference recitation, and practise: record your own recitation and compare it on-device
+            - No accounts, no ads, recordings never leave your phone
+
+            Install: download `app-release.apk` below and open it on your Android phone (you may need to allow "install from unknown sources" for your browser/file manager). The APK is signed with the standard debug key for direct installation outside the Play Store.
+
+            Web version: https://tilawah-eight.vercel.app
+          files: frontend/build/app/outputs/flutter-apk/app-release.apk
