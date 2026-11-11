@@ -1,0 +1,42 @@
+# Codemagic CI — Tilawah Android release build.
+# GitHub Actions is disabled on the owner's GitHub account, so the APK is
+# built here instead. The workflow runs on mac_mini_m2 so it stays inside
+# Codemagic's free allowance (500 macOS M2 minutes/month); Linux minutes
+# are metered pay-as-you-go, so they are deliberately not used.
+workflows:
+  android-release:
+    name: Tilawah Android release (APK)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.47.5
+      java: 17
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+    scripts:
+      - name: Regenerate Gradle wrapper (the jar is not stored in this repo)
+        script: |
+          cd frontend/android
+          gradle wrapper --gradle-version 9.3.1
+      - name: Get Flutter packages
+        script: |
+          cd frontend
+          flutter pub get
+      - name: Build Android release APK
+        script: |
+          cd frontend
+          flutter build apk --release
+    artifacts:
+      - frontend/build/app/outputs/flutter-apk/*.apk
+    publishing:
+      email:
+        recipients:
+          - jalalmjk96@gmail.com
+        notify:
+          success: true
+          failure: true
