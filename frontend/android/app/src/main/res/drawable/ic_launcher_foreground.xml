@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rub el Hizb: two overlapping squares, gold on transparent (brand mark). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M36,36 H72 V72 H36 Z"
+        android:strokeColor="#C9A227"
+        android:strokeWidth="6"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M54,28.5 L79.5,54 L54,79.5 L28.5,54 Z"
+        android:strokeColor="#C9A227"
+        android:strokeWidth="6"
+        android:fillColor="#00000000" />
+</vector>

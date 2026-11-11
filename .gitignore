@@ -1,0 +1,11 @@
+# Build artifacts and local-only files (not part of the source snapshot)
+frontend/build/
+frontend/.dart_tool/
+frontend/ios/Flutter/ephemeral/
+frontend/android/local.properties
+**/__pycache__/
+data-raw/
+hadith-raw/
+words-raw/
+last-deployment.json
+*.muse-github-snapshot-sync.json

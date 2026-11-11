@@ -1,0 +1,284 @@
+MASTER PROMPT: OFFLINE QURAN PRONUNCIATION & RECITATION CORRECTION APP
+
+Act as a senior Flutter developer, mobile application architect, Arabic typography specialist, Quranic data engineer, and speech-processing engineer. Build a complete, production-ready Quran Pronunciation & Recitation Correction application for Android and iOS.
+
+1. CORE OBJECTIVE
+
+Develop a fully offline Quran learning application that enables users to read the Holy Quran, listen to authentic recitation, record their own voice, compare their recitation against reference audio, identify supported pronunciation mistakes, and improve their recitation through clear feedback.
+
+Prioritize Quranic text accuracy, authentic audio, Arabic readability, privacy, performance, and a professional Madinah Mushaf-inspired user interface.
+
+2. TECHNOLOGY STACK
+
+- Flutter and Dart for Android and iOS.
+- Riverpod for state management.
+- Clean Architecture with presentation, domain, data, and service layers.
+- SQLite for local storage, bookmarks, settings, and practice history.
+- Local audio playback and microphone recording.
+- Python 3.11 for offline data preparation, audio preprocessing, and alignment-engine evaluation.
+- FFmpeg for audio conversion and preprocessing.
+- Native libraries or on-device inference for production audio analysis.
+- Docker for optional development and data-processing environments.
+
+The installed application must not require a Python server, Docker container, cloud API, or internet connection to perform its core functions.
+
+3. QURANIC TEXT INTEGRATION
+
+Integrate a complete, verified Uthmani Quran dataset, such as quran-uthmani.xml, subject to authenticity and licensing verification.
+
+Include all 114 Surahs and verified Ayah ordering, Arabic text, tashkeel, shaddah, sukun, Quranic symbols, and other meaningful diacritics.
+
+Support Surah, Ayah, word, line, half-line, Ruku, Para/Juz, Hizb, and Mushaf page navigation where reliable metadata is available.
+
+Preserve the original Quranic text exactly. Maintain separate display and analysis representations. Never use an LLM to generate or reconstruct canonical Quranic text. Do not invent page mappings, word boundaries, timestamps, or Quranic annotations.
+
+4. OFFLINE QURAN AUDIO
+
+Provide locally stored, licensed Quran recitation audio with a validated asset manifest.
+
+Implement:
+- Play, pause, resume, and stop.
+- Verse-by-verse playback.
+- Word-level replay when verified timestamps exist.
+- Adjustable playback speed.
+- Repeat word, Ayah, passage, or selected practice section.
+- Automatic next-Ayah playback.
+- Seamless audio transitions.
+- Audio progress indicators.
+- Recovery from interruptions and audio decoding failures.
+
+Store audio files on disk rather than in SQLite. Maintain metadata for Surah, Ayah, duration, format, reciter, file path, and integrity checksum.
+
+The complete Quran audio collection must remain available offline after the assets have been installed.
+
+5. VOICE RECORDING
+
+Allow users to record their recitation directly inside the app.
+
+Workflow:
+1. Select a Quranic passage.
+2. Listen to the reference recitation.
+3. Record the user's recitation.
+4. Check recording quality.
+5. Analyze and align the recording locally.
+6. Display detected differences and confidence information.
+7. Replay both recordings.
+8. Repeat the exercise.
+9. Save practice history locally.
+
+Detect silence, background noise, clipping, incomplete recordings, and unsuitable audio quality. Request a new recording when reliable analysis is not possible.
+
+Recordings must remain on the device and be deletable by the user.
+
+6. PRONUNCIATION CORRECTION ENGINE
+
+Implement a genuine offline audio-alignment and acoustic-comparison pipeline.
+
+Do not use ordinary speech-to-text transcription as the sole method of assessing Quranic pronunciation. General Arabic speech recognition may omit diacritics, normalize words, or fail to distinguish important recitation differences.
+
+The analysis engine should support, where validated:
+- Missing or omitted words.
+- Extra words or sounds.
+- Word substitutions.
+- Supported consonant and vowel mismatches.
+- Significant timing differences.
+- Incomplete recitation.
+- Passage alignment failures.
+- Grossly shortened or prolonged vowel duration where reliable reference timing is available.
+
+Use reference audio, forced alignment, voice activity detection, acoustic features, and a suitable on-device model where appropriate.
+
+Associate each detected issue with its relevant word or passage. Include confidence thresholds, engine-version metadata, and explicit handling of inconclusive results.
+
+Do not claim that forced alignment alone can detect every tajweed rule or makhraj error. Implement advanced tajweed assessment only when a suitable, validated rule-aware engine is available.
+
+Never fabricate errors, use hard-coded analysis results, or mark uncertain recitation as incorrect.
+
+7. VISUAL FEEDBACK
+
+Use the following feedback system:
+- Green: Correctly aligned within validated criteria.
+- Yellow: Possible issue or timing discrepancy requiring review.
+- Red: Supported error detected with sufficient confidence.
+- Gray: Not assessed, low confidence, or insufficient audio quality.
+
+When the user taps a highlighted word, show the word in context, play its reference audio where timestamps permit, replay the corresponding user recording, and explain the detected issue in simple language.
+
+Display uncertainty honestly. Never present an automated score as a definitive religious judgment.
+
+8. REQUIRED SCREENS
+
+HOME
+- Continue reading.
+- Resume practice.
+- Surah list.
+- Para/Juz navigation.
+- Bookmarks and favorites.
+- Recent practice.
+- Local progress summary.
+
+QURAN READER
+- Verified Arabic text.
+- Correct RTL rendering.
+- Surah and Ayah navigation.
+- Mushaf-style page mode where verified page mappings exist.
+- Readable reflowing text mode.
+- Audio controls.
+- Word selection where reliable segmentation exists.
+- Bookmarks and favorites.
+
+PRACTICE
+- Reference audio.
+- Record and stop controls.
+- Recording timer.
+- Replay controls.
+- Repeat settings.
+- Analysis progress.
+- Pronunciation feedback.
+- Retry functionality.
+
+RESULTS
+- Reference and user audio playback.
+- Highlighted differences.
+- Issue categories and confidence.
+- Alignment status.
+- Practice-again action.
+- Local session history.
+
+SETTINGS
+- Light, dark, and sepia themes.
+- Arabic text settings.
+- Playback speed.
+- Repeat preferences.
+- Default reciter.
+- Recording retention and deletion.
+- Offline storage information.
+- Privacy information.
+- Reset settings and clear practice history.
+
+9. UI/UX DESIGN
+
+Create a premium, calm, respectful interface inspired by the Madinah Mushaf.
+
+Use elegant Arabic typography, generous spacing, restrained colors, subtle dividers, accessible controls, and smooth transitions. Avoid flashy gradients, excessive animations, crowded layouts, and distracting gamification.
+
+Arabic rendering must support proper RTL layout, glyph shaping, and Quranic diacritics. Prevent clipped marks, overlapping text, broken words, incorrect punctuation positioning, and layout shifts during navigation.
+
+Support different screen sizes and accessibility settings. Never use fixed-height Arabic text containers that clip Quranic characters.
+
+10. DATABASE AND ARCHITECTURE
+
+Use SQLite with proper schemas, indexes, foreign keys, and migrations.
+
+Recommended entities:
+- surahs
+- ayahs
+- words
+- mushaf_pages
+- audio_assets
+- reciters
+- bookmarks
+- favorites
+- practice_sessions
+- recording_metadata
+- alignment_results
+- user_settings
+
+Keep canonical Quran data separate from user-generated data. Store audio recordings on disk and their metadata in SQLite.
+
+Use background isolates or native workers for computationally expensive analysis. Support cancellation, resource cleanup, and recovery from failed operations.
+
+11. SUGGESTED PROJECT STRUCTURE
+
+Create a maintainable project with:
+- frontend/lib/core/
+- frontend/lib/domain/
+- frontend/lib/data/
+- frontend/lib/presentation/
+- frontend/lib/ui_scenes/
+- frontend/lib/services/
+- frontend/assets/quran/
+- frontend/assets/audio/
+- frontend/assets/fonts/
+- frontend/test/
+- tools/data_validation/
+- tools/audio_preprocessing/
+- tools/alignment_evaluation/
+- alignment_engine/
+- docs/
+
+Include a README, dependency configuration, database migrations, asset manifests, and setup instructions.
+
+12. PERFORMANCE AND PRIVACY
+
+Optimize the application for ordinary Android phones and limited-memory devices.
+
+- Load Quran text incrementally.
+- Stream local audio.
+- Avoid loading all audio into memory.
+- Run analysis outside the UI thread.
+- Release resources properly.
+- Handle low-storage conditions.
+- Avoid duplicate recording or playback sessions.
+- Provide clear storage requirements.
+- Measure startup time, memory usage, audio latency, and analysis performance.
+
+No mandatory login, advertisements, analytics SDKs, hidden network requests, or cloud speech recognition.
+
+Request microphone permission only when recording is initiated. Keep user recordings local and provide explicit deletion controls.
+
+13. TESTING
+
+Implement unit, widget, integration, and data-integrity tests.
+
+Verify all 114 Surahs, Ayah ordering, Arabic encoding, diacritic preservation, audio-file integrity, navigation, bookmarks, recording permissions, playback, and application lifecycle handling.
+
+Test the analysis engine with correct recitations, omissions, substitutions, repeated words, different reciters, different speeds, silence, noise, and incomplete recordings.
+
+Measure false-positive and false-negative rates. Ensure uncertain recordings produce inconclusive results instead of fabricated corrections.
+
+Run formatting, static analysis, automated tests, and Android/iOS build checks.
+
+14. DEVELOPMENT WORKFLOW
+
+First inspect the existing repository and identify implemented features, missing components, existing assets, dependency issues, and architecture problems.
+
+Then:
+1. Set up the project architecture and database.
+2. Integrate and validate Quranic text.
+3. Build the Quran reader and navigation.
+4. Integrate offline audio playback.
+5. Implement recording and audio-quality checks.
+6. Integrate the local alignment and acoustic-comparison engine.
+7. Implement feedback, history, and settings.
+8. Optimize performance and accessibility.
+9. Run tests and resolve failures.
+10. Prepare release builds and documentation.
+
+Preserve existing working functionality. Make incremental changes and verify them before proceeding.
+
+Do not stop after generating a mockup, project skeleton, or design. Implement real functionality and report any missing assets or unresolved technical limitations.
+
+15. DELIVERABLES
+
+Provide:
+- Complete Flutter source code.
+- Android and iOS build instructions.
+- Verified Quran data integration.
+- Offline audio playback and recording.
+- Real local pronunciation-analysis integration.
+- SQLite database and migrations.
+- Automated tests.
+- Asset manifests and licensing information.
+- README and troubleshooting documentation.
+- Privacy and security documentation.
+- Alignment-engine evaluation report.
+- Documented limitations and supported pronunciation-error categories.
+
+FINAL ACCEPTANCE CRITERIA
+
+The app must display verified Quranic text correctly, play reference audio offline, record the user's recitation, perform genuine local alignment and supported acoustic comparison, highlight evidence-supported differences, handle uncertainty honestly, preserve user progress, and operate without a runtime backend.
+
+Do not claim complete tajweed or phoneme-level accuracy without validation. If full pronunciation assessment is not technically achievable with the available offline models, implement the strongest validated subset and clearly document its limitations.
+
+FINAL GOAL: Build a polished, reliable, privacy-first Quran application that helps users read, listen, recite, compare, and improve their Quranic pronunciation entirely offline.

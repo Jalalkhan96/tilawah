@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tilawah — Quran Pronunciation &amp; Recitation Practice</title>
+<meta name="description" content="Read the Holy Quran (Uthmani script), listen to reference recitation with word-by-word highlighting, record your own recitation and compare it locally — private and offline-first.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b3d2e">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Scheherazade+New:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="icons/icon.svg" alt="Tilawah logo" class="brand-icon">
+    <div>
+      <h1>Tilawah</h1>
+      <p>Quran Pronunciation &amp; Recitation Practice</p>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span id="offlineBadge" class="badge" title="Connection status">● Online</span>
+    <button id="installBtn" class="btn btn-ghost" hidden>Install app</button>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Main">
+  <button data-view="home" class="tab active">Home</button>
+  <button data-view="reader" class="tab">Read</button>
+  <button data-view="surah" class="tab">Surah Detail</button>
+  <button data-view="listen" class="tab">Listen</button>
+  <button data-view="surahs" class="tab">Surah Index</button>
+  <button data-view="juz" class="tab">Para / Juz</button>
+  <button data-view="wbw" class="tab">Word by Word</button>
+  <button data-view="reciters" class="tab">Reciters</button>
+  <button data-view="translations" class="tab">Translations</button>
+  <button data-view="tafsir" class="tab">Tafsir</button>
+  <button data-view="learn" class="tab">Qaida &amp; Tajweed</button>
+  <button data-view="hadith" class="tab">Daily Hadith</button>
+  <button data-view="bookmarks" class="tab">Bookmarks</button>
+  <button data-view="practice" class="tab">Practice</button>
+  <button data-view="history" class="tab">History</button>
+  <button data-view="settings" class="tab">Settings</button>
+</nav>
+
+<main>
+  <!-- ===================== HOME ===================== -->
+  <section id="view-home" class="view active">
+    <div class="card hero">
+      <span class="hero-badge">✦ Offline-first · Private by design</span>
+      <h2>بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</h2>
+      <div class="hero-rule"></div>
+      <p class="muted">Read the verified Uthmani text, listen to authentic recitation with the words highlighted as they are spoken, record yourself and compare — everything is analysed <strong>on your device</strong>. No account, no ads, no uploads.</p>
+      <div class="row wrap">
+        <button class="btn btn-primary" id="continueBtn">Continue reading</button>
+        <button class="btn" id="resumePracticeBtn">Resume practice</button>
+        <button class="btn" id="heroHadithBtn">Today's Hadith</button>
+      </div>
+      <p class="muted small" id="lastPositionText"></p>
+    </div>
+
+    <div class="card">
+      <h3>Your progress (stored only on this device)</h3>
+      <div class="stats" id="homeStats"></div>
+    </div>
+
+    <div class="card">
+      <h3>Verse of the day</h3>
+      <div id="dailyVerse"><p class="muted">Loading today's verse…</p></div>
+    </div>
+
+    <div class="card">
+      <h3>Continue listening</h3>
+      <div id="continueListening"><p class="muted">Nothing played yet — pick a Surah or a Para below, or open the Listen page.</p></div>
+      <h3 style="margin-top:18px">Recently played</h3>
+      <div id="recentList" class="list"></div>
+    </div>
+
+    <div class="card hadith-preview-card">
+      <h3>Hadith of the day</h3>
+      <div id="dailyPreview"><p class="muted">Loading today's hadith…</p></div>
+    </div>
+
+    <div class="card">
+      <h3>Find a Surah or Ayah</h3>
+      <input id="searchInput" type="search" placeholder="Search surah name (e.g. Yaseen, 36) or Arabic / English text…" aria-label="Search">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+
+    <div class="card">
+      <div class="row between"><h3>Surahs</h3>
+        <select id="homeSurahSort" aria-label="Surah list order">
+          <option value="mushaf">Mushaf order</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <p class="muted small">Tap a surah for its full detail page — info, every ayah, play controls and word-by-word.</p>
+      <div id="surahList" class="surah-list"></div>
+    </div>
+
+    <div class="card">
+      <h3>Juz (Para) — read or play a whole Para</h3>
+      <div id="juzList" class="juz-list"></div>
+    </div>
+
+    <div class="card">
+      <h3>Bookmarks</h3>
+      <div id="bookmarkList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== READER ===================== -->
+  <section id="view-reader" class="view">
+    <div class="card reader-head">
+      <div class="row between wrap">
+        <button class="btn" id="prevSurahBtn">← Prev Surah</button>
+        <div class="center">
+          <h2 id="surahTitle" class="arabic-title"></h2>
+          <p id="surahMeta" class="muted"></p>
+        </div>
+        <button class="btn" id="nextSurahBtn">Next Surah →</button>
+      </div>
+      <div class="row wrap center-row">
+        <label>Go to ayah <input id="gotoAyah" type="number" min="1" style="width:80px"></label>
+        <button class="btn btn-small" id="gotoBtn">Go</button>
+        <button class="btn btn-small" id="readerSurahDetailBtn">Surah details</button>
+        <button class="btn btn-small" id="tajweedBtn" title="Colour the text by verified Tajweed rules">Tajweed colours: Off</button>
+        <button class="btn btn-small" id="readerTafsirBtn">Tafsir of selected ayah</button>
+        <button class="btn btn-small" id="downloadAudioBtn" title="Cache this surah's audio for offline listening">⬇ Audio for offline</button>
+        <span id="downloadAudioStatus" class="muted small"></span>
+      </div>
+      <p class="muted small center" style="margin:10px 0 0">Tap a <b>word</b> to hear just that word · <b>press &amp; hold</b> a word for its meaning · tap the <b>﴿number﴾</b> for full ayah details.</p>
+    </div>
+
+    <div class="card mushaf" id="mushafCard">
+      <div id="basmala" class="basmala arabic" hidden>بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+      <div id="ayahFlow" class="ayah-flow arabic" dir="rtl" lang="ar"></div>
+      <div id="translationBox" class="translation" dir="ltr"></div>
+    </div>
+
+    <div class="player card" id="playerBar">
+      <div class="row between wrap">
+        <div>
+          <strong id="nowPlaying">No ayah selected</strong>
+          <div class="muted small" id="playerStatus">Tap an ayah, then Play. Played ayahs are cached for offline use.</div>
+        </div>
+        <span class="mode-chip" id="modeChip" hidden></span>
+      </div>
+      <div class="row wrap" style="margin-top:10px">
+        <button class="btn btn-primary" id="playBtn">▶ Play ayah</button>
+        <button class="btn" id="playSurahBtn">▶ Play Surah</button>
+        <button class="btn" id="wbwBtn">▶ Word by word</button>
+        <button class="btn" id="prevAyahBtn" title="Previous ayah">⏮ Prev</button>
+        <button class="btn" id="pauseBtn">⏸ Pause</button>
+        <button class="btn" id="nextAyahBtn" title="Next ayah">Next ⏭</button>
+        <button class="btn" id="stopBtn">⏹ Stop</button>
+      </div>
+      <progress id="audioProgress" value="0" max="1"></progress>
+      <div class="row wrap seek-row">
+        <input type="range" id="seekRange" min="0" max="1000" value="0" aria-label="Seek">
+        <span class="small" id="timeLabel">0:00 / 0:00</span>
+      </div>
+      <div class="row wrap small">
+        <label>Volume <input type="range" id="volRange" min="0" max="1" step="0.05" value="1" style="width:110px;vertical-align:middle"></label>
+        <label>Sleep timer <select id="sleepSel"><option value="0">Off</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label>
+      </div>
+      <div class="row wrap small">
+        <label><input type="checkbox" id="autoAdvanceChk" checked> Auto next ayah</label>
+        <label>Repeat <select id="repeatSel"><option value="1">×1</option><option value="2">×2</option><option value="3">×3</option><option value="5">×5</option></select></label>
+        <label>Speed <select id="speedSel"><option>0.75</option><option selected>1</option><option>1.25</option><option>1.5</option></select></label>
+        <button class="btn btn-small" id="ayahDetailBtn">Ayah details</button>
+        <button class="btn btn-small" id="bookmarkBtn">Bookmark ayah</button>
+        <button class="btn btn-small btn-primary" id="practiceBtn">Practice this ayah</button>
+      </div>
+      <p class="muted small" id="highlightNote">Word highlighting follows the recitation: with Mishary Alafasy selected, each word lights up as it is spoken. With other reciters, the current ayah is highlighted. Word-by-word mode is exact for every word.</p>
+    </div>
+  </section>
+
+  <!-- ===================== SURAH DETAIL ===================== -->
+  <section id="view-surah" class="view">
+    <div class="card surah-hero">
+      <div class="row between wrap">
+        <button class="btn" id="detailPrevBtn">← Prev</button>
+        <span class="muted small">Surah detail</span>
+        <button class="btn" id="detailNextBtn">Next →</button>
+      </div>
+      <div class="surah-hero-main">
+        <div class="surah-medallion" id="detailMedallion">1</div>
+        <div class="surah-hero-text">
+          <h2 id="detailNameAr" class="arabic-title"></h2>
+          <p class="detail-name" id="detailNameEn"></p>
+          <p class="muted" id="detailMeaning"></p>
+        </div>
+      </div>
+      <div class="chip-grid" id="detailMeta"></div>
+      <div class="row wrap" style="margin-top:14px">
+        <button class="btn btn-primary" id="detailReadBtn">Read in Mushaf</button>
+        <button class="btn" id="detailPlayBtn">▶ Play whole Surah</button>
+        <button class="btn" id="detailWbwBtn">Word by word from Ayah 1</button>
+        <button class="btn" id="detailPracticeBtn">Practice</button>
+        <button class="btn" id="detailDownloadBtn">⬇ Audio for offline</button>
+      </div>
+      <p class="muted small" id="detailStatus"></p>
+    </div>
+    <div class="card">
+      <h3>Every ayah — tap to read, play, hear it word-by-word, or open details</h3>
+      <div id="detailAyahList" class="detail-ayah-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== DAILY HADITH ===================== -->
+  <section id="view-hadith" class="view">
+    <div class="card">
+      <div class="row between wrap">
+        <h3 style="margin:0">Daily Hadith</h3>
+        <span class="muted small" id="hadithDate"></span>
+      </div>
+      <div class="row wrap" style="margin:12px 0">
+        <button class="btn btn-small" id="hadithPrevBtn">← Previous day</button>
+        <button class="btn btn-small" id="hadithTodayBtn">Today</button>
+        <button class="btn btn-small" id="hadithNextBtn">Next day →</button>
+        <button class="btn btn-small" id="hadithRandomBtn">Surprise me</button>
+      </div>
+      <div id="hadithCard"><p class="muted">Loading…</p></div>
+    </div>
+    <div class="card">
+      <h3>Hadith library — search the 365-day pool</h3>
+      <div class="row wrap">
+        <input id="hadithSearch" type="search" placeholder="Search English / Urdu text or hadith number…" aria-label="Search hadith" style="flex:1;min-width:200px">
+        <select id="hadithFilter" aria-label="Collection filter">
+          <option value="">All collections</option>
+          <option value="Sahih al-Bukhari">Sahih al-Bukhari</option>
+          <option value="Sahih Muslim">Sahih Muslim</option>
+          <option value="Jami` at-Tirmidhi">Jami` at-Tirmidhi</option>
+          <option value="Sunan Abu Dawud">Sunan Abu Dawud</option>
+          <option value="Sunan Ibn Majah">Sunan Ibn Majah</option>
+        </select>
+      </div>
+      <div id="hadithLibrary" class="list" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h3>About these hadith</h3>
+      <p class="muted small">The pool contains 365 hadith — one for every day of the year — drawn from Sahih al-Bukhari, Sahih Muslim, Jami` at-Tirmidhi, Sunan Abu Dawud and Sunan Ibn Majah, with the collection and hadith number shown on every card. Texts are copied exactly from the source editions (fawazahmed0/hadith-api); nothing is paraphrased or generated. The Arabic edition includes the chain of narration (isnad) before the text, as published.</p>
+    </div>
+  </section>
+
+  <!-- ===================== PRACTICE ===================== -->
+  <section id="view-practice" class="view">
+    <div class="card">
+      <h3>1 · Choose a passage</h3>
+      <div class="row wrap">
+        <label>Surah <select id="pSurah"></select></label>
+        <label>From ayah <select id="pFrom"></select></label>
+        <label>To ayah <select id="pTo"></select></label>
+      </div>
+      <div id="passageText" class="passage arabic" dir="rtl" lang="ar"></div>
+      <p id="passageTranslation" class="muted small"></p>
+    </div>
+
+    <div class="card">
+      <h3>2 · Listen to the reference</h3>
+      <div class="row wrap">
+        <button class="btn btn-primary" id="refPlayBtn">▶ Play reference</button>
+        <button class="btn" id="refStopBtn">⏹ Stop</button>
+        <span class="muted small">Reciter: <span id="reciterName"></span></span> <span class="muted small" id="refStatus"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>3 · Record your recitation</h3>
+      <p class="muted small">Microphone permission is requested only when you press Record. Your recording never leaves this device.</p>
+      <div class="row wrap">
+        <button class="btn btn-record" id="recordBtn">● Record</button>
+        <button class="btn" id="stopRecordBtn" disabled>⏹ Stop</button>
+        <span id="recordTimer" class="timer">0:00</span>
+        <span id="recordStatus" class="muted small"></span>
+      </div>
+      <canvas id="waveCanvas" width="640" height="90" aria-hidden="true"></canvas>
+      <div class="row wrap">
+        <button class="btn" id="playUserBtn" disabled>▶ Play my recording</button>
+        <button class="btn" id="deleteUserBtn" disabled>🗑 Delete recording</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>4 · Compare</h3>
+      <div class="row wrap">
+        <button class="btn btn-primary" id="analyzeBtn" disabled>Analyse my recitation</button>
+        <span id="analyzeStatus" class="muted small"></span>
+      </div>
+      <div id="resultBox" hidden>
+        <div class="row wrap" id="resultSummary"></div>
+        <div id="metricsBox" class="metrics"></div>
+        <p class="muted small">Word colours — <span class="dot green"></span> aligned &nbsp;<span class="dot yellow"></span> possible timing issue &nbsp;<span class="dot red"></span> supported error (e.g. near-silent segment) &nbsp;<span class="dot gray"></span> not assessed. Tap a word for detail. Word timing is estimated from the alignment — this tool checks alignment, timing and sound shape; it does <strong>not</strong> judge tajweed and is not a religious ruling.</p>
+        <div id="wordFeedback" class="word-feedback arabic" dir="rtl" lang="ar"></div>
+        <div id="wordDetail" class="word-detail"></div>
+        <div class="row wrap">
+          <button class="btn" id="againBtn">↻ Practice again</button>
+          <button class="btn" id="saveSessionBtn">💾 Save session</button>
+          <span id="saveStatus" class="muted small"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>5 · Memorize (Hifz)</h3>
+      <p class="muted small">Uses the passage chosen in step 1. Repeat the whole passage, hide the text to test yourself (tap the hidden text to peek), and mark passages as memorized — progress is saved on this device only.</p>
+      <div class="row wrap">
+        <label><input type="checkbox" id="hifzHideChk"> Hide passage text</label>
+        <label>Repeat passage <select id="hifzRepeatSel"><option value="1">×1</option><option value="3">×3</option><option value="5">×5</option><option value="10">×10</option></select></label>
+        <button class="btn btn-primary" id="hifzPlayBtn">▶ Play for memorization</button>
+        <button class="btn" id="hifzDoneBtn">✓ Mark passage memorized</button>
+      </div>
+      <p class="muted small" id="hifzStatus"></p>
+      <div id="hifzList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== HISTORY ===================== -->
+  <section id="view-history" class="view">
+    <div class="card">
+      <h3>Practice history (on this device only)</h3>
+      <div id="historyList" class="list"></div>
+      <div class="row wrap">
+        <button class="btn" id="clearHistoryBtn">Clear all history</button>
+        <button class="btn" id="deleteRecordingsBtn">Delete all saved recordings</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SETTINGS ===================== -->
+  <section id="view-settings" class="view">
+    <div class="card">
+      <h3>Appearance &amp; reading</h3>
+      <label>Theme
+        <select id="themeSel"><option value="light">Light (Mushaf cream)</option><option value="sepia">Sepia</option><option value="dark">Dark</option></select>
+      </label>
+      <label>Arabic text size <input id="fontSizeRange" type="range" min="24" max="52" step="2"> <span id="fontSizeVal"></span></label>
+      <label><input type="checkbox" id="showTransChk"> Show translation under the selected ayah</label>
+      <label><input type="checkbox" id="tajweedChk"> Tajweed colours in the reader (verified rule annotations)</label>
+      <label><input type="checkbox" id="hoverPlayChk"> Play a word when the mouse hovers over it (desktop; off by default)</label>
+      <label>Translation language
+        <select id="transLangSel">
+          <option value="e">English — Saheeh International</option>
+          <option value="a">English — Muhammad Asad</option>
+          <option value="u">اردو — Fateh Muhammad Jalandhry</option>
+          <option value="s">پښتو — Abdul Wali Khan</option>
+        </select>
+      </label>
+      <p class="muted small">All four translations above are bundled with the app and work offline: two English, one Urdu and one Pashto. Twenty-five more verified translations (French, Turkish, Persian, Russian, Chinese, Malay, Indonesian, German, Spanish, Malayalam, Tamil, Bengali, Kurdish, Uzbek, Azerbaijani, Hindi and more Urdu) are on the <b>Translations</b> page — they load per ayah over the internet and are cached on this device.</p>
+    </div>
+    <div class="card">
+      <h3>Audio</h3>
+      <label>Reciter
+        <select id="reciterSel"></select>
+      </label>
+      <label>Spoken translation after each ayah (Quran Pen style)
+        <select id="transAudioSel">
+          <option value="">Off</option>
+          <option value="en.walk">English — Ibrahim Walk</option>
+          <option value="ur.khan">Urdu — Shamshad Ali Khan</option>
+        </select>
+      </label>
+      <p class="muted small">23 reciters, every one verified against a real per-ayah audio source before being listed: 17 from the Islamic Network CDN (Alafasy, Husary, Minshawi — Murattal and Mujawwad, Hudhaify, Abdul Basit, Shuraim, Ajamy, Shatri, Jibreel and more) and 6 from EveryAyah (Saad Al-Ghamdi, Ali Abdullah Jaber, Salah Al-Budair, Husary Muallim teaching recitation, Abdul Basit Mujawwad, Aziz Alili). Ayah audio is streamed per-ayah and cached on this device after first play, so listened passages work offline. Word-by-word audio is streamed per word from the Quran.com CDN (audio.qurancdn.com) and cached the same way. Use “⬇ Audio for offline” to pre-download a whole surah's ayah audio. With spoken translation on, each ayah is followed by its English or Urdu translation read aloud, exactly like the pen. Reciters whose per-ayah recordings could not be verified in any free source (for example Sudais and Yasser Al-Dosari) are honestly not listed rather than faked.</p>
+    </div>
+    <div class="card">
+      <h3>Privacy &amp; storage</h3>
+      <label><input type="checkbox" id="keepRecordingsChk"> Keep recordings with saved sessions (IndexedDB, this device only). If off, only scores are kept.</label>
+      <p class="muted small" id="storageInfo">Storage: …</p>
+      <div class="row wrap">
+        <button class="btn" id="clearCacheBtn">Clear cached audio</button>
+        <button class="btn" id="resetBtn">Reset all settings &amp; data</button>
+      </div>
+      <p class="muted small">No login. No ads. No analytics. No cloud speech recognition. Recordings are stored only on your device and can be deleted at any time from History. Full details in the project’s <em>docs/PRIVACY.md</em>.</p>
+    </div>
+    <div class="card">
+      <h3>About the text, words &amp; the engine</h3>
+      <p class="muted small">Quranic text: Uthmani script edition served by the AlQuran Cloud API (Tanzil text), validated locally — 114 surahs, 6,236 ayahs, per-surah ayah counts and Juz / page / ruku / hizb metadata checked (see <em>docs/VALIDATION_REPORT.md</em>). Translations (Saheeh International and Muhammad Asad in English, Fateh Muhammad Jalandhry in Urdu, Abdul Wali Khan in Pashto) come from the same API and were merged only after their ayah counts and global numbering matched the validated text exactly, ayah for ayah.</p> The Basmala is part of the first ayah’s text in this source for most surahs (except 1 and 9), exactly as distributed — the text is preserved unmodified. Word segmentation, word meanings and recitation timings come from the Quran.com API and were machine-verified against the displayed text for 6,233 of 6,236 ayahs; the remaining ayahs honestly fall back to whole-ayah playback. The comparison engine is a local DTW acoustic-alignment engine (<span id="engineVer"></span>); its supported error categories and limits are documented in <em>docs/LIMITATIONS.md</em>.</p>
+    </div>
+  </section>
+
+  <!-- ===================== LISTEN ===================== -->
+  <section id="view-listen" class="view">
+    <div class="card">
+      <h3>Listen — reciter, Surah, Para &amp; ranges</h3>
+      <div class="row wrap">
+        <label>Reciter <select id="lReciterSel"></select></label>
+        <span class="muted small" id="lNowPlaying">Nothing playing.</span>
+      </div>
+      <div class="row wrap" style="margin-top:12px">
+        <button class="btn" id="lPrevBtn">⏮ Prev</button>
+        <button class="btn btn-primary" id="lPlayPauseBtn">▶ Play / Pause</button>
+        <button class="btn" id="lNextBtn">Next ⏭</button>
+        <button class="btn" id="lStopBtn">⏹ Stop</button>
+        <span class="muted small" id="lStatus"></span>
+      </div>
+      <div class="row wrap seek-row" style="margin-top:10px">
+        <input type="range" id="lSeekRange" min="0" max="1000" value="0" aria-label="Seek">
+        <span class="small" id="lTimeLabel">0:00 / 0:00</span>
+      </div>
+      <div class="row wrap small" style="margin-top:8px">
+        <label>Volume <input type="range" id="lVolRange" min="0" max="1" step="0.05" value="1" style="width:110px;vertical-align:middle"></label>
+        <label>Speed <select id="lSpeedSel"><option>0.75</option><option selected>1</option><option>1.25</option><option>1.5</option></select></label>
+        <label>Sleep timer <select id="lSleepSel"><option value="0">Off</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Play a Surah or an ayah range</h3>
+      <div class="row wrap">
+        <label>Surah <select id="lSurahSel"></select></label>
+        <label>From ayah <select id="lFrom"></select></label>
+        <label>To ayah <select id="lTo"></select></label>
+        <label>Repeat range <select id="lRangeRepeat"><option value="0">Off</option><option value="1">×2 total</option><option value="2">×3 total</option><option value="4">×5 total</option></select></label>
+        <button class="btn btn-primary" id="lPlayRangeBtn">▶ Play range</button>
+      </div>
+      <div class="row wrap" style="margin-top:12px">
+        <label>Para / Juz <select id="lJuzSel"></select></label>
+        <button class="btn btn-primary" id="lPlayJuzBtn">▶ Play whole Para</button>
+      </div>
+      <p class="muted small">Para playback follows the true verse sequence across Surah boundaries, ayah by ayah, so the highlighting in the Reader stays exact.</p>
+    </div>
+    <div class="card">
+      <h3>Up next (queue)</h3>
+      <div id="queueList" class="queue-list"><p class="muted">The queue is empty. Play a Surah, a Para or a range and it appears here — tap any item to jump to it.</p></div>
+    </div>
+    <div class="card">
+      <h3>Listening history (this device)</h3>
+      <div id="listenHistory" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== SURAH INDEX ===================== -->
+  <section id="view-surahs" class="view">
+    <div class="card">
+      <h3>All 114 Surahs</h3>
+      <div class="row wrap">
+        <input id="surahSearch" type="search" placeholder="Search by name or number…" aria-label="Search surahs" style="flex:1;min-width:200px">
+        <select id="surahSortSel" aria-label="Sort surahs">
+          <option value="mushaf">Mushaf order</option>
+          <option value="name">Name A–Z</option>
+          <option value="ayahs-desc">Most ayahs</option>
+          <option value="ayahs-asc">Fewest ayahs</option>
+        </select>
+      </div>
+      <div id="surahIndexList" class="detail-ayah-list" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- ===================== JUZ INDEX ===================== -->
+  <section id="view-juz" class="view">
+    <div class="card">
+      <h3>All 30 Paras (Juz)</h3>
+      <p class="muted small">Start and end references are computed from the verified per-ayah Juz metadata in the bundled text — nothing is hard-coded.</p>
+      <div id="juzIndexList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== WORD BY WORD ===================== -->
+  <section id="view-wbw" class="view">
+    <div class="card">
+      <h3>Word-by-Word Quran</h3>
+      <div class="row wrap">
+        <label>Surah <select id="wSurahSel"></select></label>
+        <label>Ayah <select id="wAyahSel"></select></label>
+        <button class="btn btn-primary" id="wPlayWbwBtn">▶ Play word by word</button>
+        <button class="btn" id="wPlayAyahBtn">▶ Play whole ayah</button>
+      </div>
+      <p class="muted small" id="wbwStatus">Tap any word to hear exactly that word. Word audio is real per-word recordings (Quran.com CDN) — never text-to-speech. Word meanings are available in English; Urdu and Pashto word-by-word meanings are not in any verified free dataset, so they are not invented here.</p>
+      <div id="wbwWords" class="wbw-grid" dir="rtl" lang="ar"></div>
+    </div>
+  </section>
+
+  <!-- ===================== RECITERS ===================== -->
+  <section id="view-reciters" class="view">
+    <div class="card">
+      <h3>Reciters — only verified voices are listed</h3>
+      <input id="reciterSearch" type="search" placeholder="Search reciters (e.g. Husary, Ghamdi, Mujawwad)…" aria-label="Search reciters">
+      <p class="muted small" id="reciterStatus" style="margin-top:10px"></p>
+      <div id="reciterGrid" class="reciter-grid"></div>
+      <p class="muted small">Every reciter here was checked against a real per-ayah audio source (Islamic Network CDN or EveryAyah) before being listed, and changing reciter really changes the audio file that plays. Famous names whose per-ayah recordings could not be verified in a free, permitted source — including Abdul Rahman Al-Sudais, Yasser Al-Dosari, Abdul Rashid Sufi and Dukali Muhammad Al-Alam — are not shown, rather than being faked with someone else's voice.</p>
+    </div>
+  </section>
+
+  <!-- ===================== TRANSLATIONS ===================== -->
+  <section id="view-translations" class="view">
+    <div class="card">
+      <h3>Bundled translations (work offline)</h3>
+      <div id="bundledTransList" class="list"></div>
+    </div>
+    <div class="card">
+      <h3>Online translation packs (verified editions)</h3>
+      <p class="muted small">These editions were each checked for real translated text before being listed. Selecting one fetches the translation ayah by ayah from the AlQuran Cloud API while you read, and caches what you have read on this device. Somali is not listed: the only candidate edition returned Arabic text instead of a Somali translation when probed, so it was excluded rather than mislabelled.</p>
+      <div id="packList" class="list"></div>
+    </div>
+    <div class="card">
+      <h3>Translation text size</h3>
+      <label>Size <input id="transFontRange" type="range" min="13" max="22" step="1"> <span id="transFontVal"></span></label>
+    </div>
+  </section>
+
+  <!-- ===================== TAFSIR ===================== -->
+  <section id="view-tafsir" class="view">
+    <div class="card">
+      <h3>Tafsir — sourced commentary, shown with its source</h3>
+      <div class="row wrap">
+        <label>Tafsir <select id="tfTafsirSel"></select></label>
+        <label>Surah <select id="tfSurahSel"></select></label>
+        <label>Ayah <select id="tfAyahSel"></select></label>
+        <button class="btn btn-primary" id="tfGetBtn">Show tafsir</button>
+      </div>
+      <p class="muted small" id="tfStatus">Tafsir text is fetched live from the Quran.com API and needs an internet connection; the source is named on every result. Tafsir Jalalayn is not in the Quran.com API catalog, so it is not offered rather than fabricated.</p>
+      <div id="tfContent" class="tafsir-content"></div>
+    </div>
+  </section>
+
+  <!-- ===================== QAIDA & TAJWEED ===================== -->
+  <section id="view-learn" class="view">
+    <div class="card">
+      <h3>Tajweed colours — legend</h3>
+      <p class="muted small">Colours come from the verified <i>quran-tajweed</i> annotation edition (AlQuran Cloud). Annotations were mapped onto this app's validated text only where the two texts could be proven identical ayah by ayah — that proof succeeded for 5,110 of 6,236 ayahs (81.9%); the remaining ayahs honestly render without colours.</p>
+      <div id="legendGrid" class="legend-grid"></div>
+      <div class="row wrap" style="margin-top:12px">
+        <button class="btn btn-primary" id="learnTajweedBtn">Toggle Tajweed colours in the Reader</button>
+        <span class="muted small" id="learnStatus"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Qaida — the Arabic alphabet</h3>
+      <p class="muted small">Each letter with its name and its written forms (isolated · final · initial · medial). There are no verified standalone letter recordings in the free sources this app uses, so letter audio is not faked — hear real letters inside real words with the examples below and on the Word-by-Word page.</p>
+      <div id="qaidaGrid" class="qaida-grid"></div>
+    </div>
+    <div class="card">
+      <h3>Harakat — vowel marks (on the letter Baa)</h3>
+      <div class="qaida-grid">
+        <div class="qaida-cell"><span class="qaida-letter arabic">بَ</span><span>Fatha — “ba”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بِ</span><span>Kasra — “bi”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بُ</span><span>Damma — “bu”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بْ</span><span>Sukun — “b” (no vowel)</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بَّ</span><span>Shadda — doubled “bb”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بً</span><span>Tanween Fath — “ban”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بٍ</span><span>Tanween Kasr — “bin”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بٌ</span><span>Tanween Damm — “bun”</span></div>
+        <div class="qaida-cell"><span class="qaida-letter arabic">بَا</span><span>Madd — long “baa”</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Hear real words — Al-Fatihah 1</h3>
+      <p class="muted small">Tap a word to hear its real recording and see its meaning in the Reader.</p>
+      <div id="exampleWords" class="row wrap"></div>
+    </div>
+  </section>
+
+  <!-- ===================== BOOKMARKS ===================== -->
+  <section id="view-bookmarks" class="view">
+    <div class="card">
+      <h3>Bookmarked ayahs</h3>
+      <div id="bookmarkPageList" class="list"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer muted small">
+  Tilawah — built for private, offline-first Quran practice. Text: Tanzil Uthmani via AlQuran Cloud · Translations: Saheeh International &amp; Muhammad Asad (English), Fateh Muhammad Jalandhry (Urdu), Abdul Wali Khan (Pashto) + 25 verified online editions via AlQuran Cloud · Audio: Islamic Network CDN &amp; EveryAyah · Word audio &amp; timings: Quran.com · Tafsir: Quran.com API · Tajweed annotations: AlQuran Cloud quran-tajweed · Hadith: fawazahmed0/hadith-api editions.
+</footer>
+
+<!-- word detail sheet -->
+<div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+<aside id="wordSheet" class="sheet" hidden aria-live="polite">
+  <div class="sheet-handle"></div>
+  <div id="sheetContent"></div>
+</aside>
+
+<audio id="audioEl" preload="none"></audio>
+<!-- Liquid-lens filter for the glass slider thumb (slider concept © Maxuiux) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="mini-liquid-lens" x="-50%" y="-50%" width="200%" height="200%">
+    <feImage x="0" y="0" result="normalMap" xlink:href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><radialGradient id='invmap' cx='50%' cy='50%' r='75%'><stop offset='0%' stop-color='rgb(128,128,255)'/><stop offset='90%' stop-color='rgb(255,255,255)'/></radialGradient><rect width='100%' height='100%' fill='url(%23invmap)'/></svg>"/>
+    <feDisplacementMap in="SourceGraphic" in2="normalMap" scale="-252" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+    <feMerge><feMergeNode in="displaced"/></feMerge>
+  </filter>
+</svg>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+<script src="js/v4.js"></script>
+</body>
+</html>
