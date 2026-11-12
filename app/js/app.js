@@ -42,6 +42,7 @@ let currentView = 'home';
 let settings = Object.assign({ theme: 'light', fontSize: 34, reciter: 'ar.alafasy', showTrans: true, keepRecordings: false, speed: 1, translation: 'e', transAudio: '' }, load('tilawah.settings.v1', {}));
 if (!RECITERS[settings.reciter]) settings.reciter = 'ar.alafasy';
 $('reciterSel').innerHTML = Object.entries(RECITERS).map(([id, r]) => `<option value="${id}">${r.name}</option>`).join('');
+$('detailReciterSel').innerHTML = $('reciterSel').innerHTML;
 let bookmarks = load('tilawah.bookmarks.v1', []);   // global ayah numbers
 let history = load('tilawah.history.v1', []);       // session metadata
 let lastPos = load('tilawah.lastPos.v1', { s: 0, a: 1 });
@@ -81,6 +82,23 @@ function showView(name) {
   if (name === 'hadith') renderHadith();
   window.scrollTo({ top: 0 });
 }
+
+/* tabs edge arrows (redesign #3): page the nav bar sideways, dim at the ends */
+(function () {
+  const bar = document.querySelector('.tabs');
+  const prev = $('tabsPrevBtn'), next = $('tabsNextBtn');
+  if (!bar || !prev || !next) return;
+  const page = dir => bar.scrollBy({ left: dir * Math.max(160, bar.clientWidth * 0.6), behavior: 'smooth' });
+  prev.addEventListener('click', () => page(-1));
+  next.addEventListener('click', () => page(1));
+  const sync = () => {
+    prev.classList.toggle('is-off', bar.scrollLeft <= 2);
+    next.classList.toggle('is-off', bar.scrollLeft >= bar.scrollWidth - bar.clientWidth - 2);
+  };
+  bar.addEventListener('scroll', sync, { passive: true });
+  window.addEventListener('resize', sync);
+  sync();
+})();
 
 /* ---------------- data loading (byte parts) ---------------- */
 /* Data files ship as byte parts (…-NNN.bin) listed in a *.parts.json
@@ -612,6 +630,14 @@ $('wbwBtn').addEventListener('click', async () => { await ensureWords(); if (!st
 $('pauseBtn').addEventListener('click', () => { if (audioEl.paused) { audioEl.play().catch(() => {}); startPlaybackUI(); } else audioEl.pause(); });
 $('stopBtn').addEventListener('click', () => { stopAudio(); $('playerStatus').textContent = 'Stopped.'; });
 
+/* redesign #2: segmented mode highlight + round transport button icon sync */
+const segBtns = [$('playBtn'), $('playSurahBtn'), $('wbwBtn')];
+segBtns.forEach(b => b.addEventListener('click', () => segBtns.forEach(x => x.classList.toggle('seg-active', x === b))));
+$('stopBtn').addEventListener('click', () => segBtns.forEach(x => x.classList.remove('seg-active')));
+audioEl.addEventListener('play', () => { $('pauseBtn').textContent = '⏸'; });
+audioEl.addEventListener('pause', () => { $('pauseBtn').textContent = '▶'; });
+$('pauseBtn').textContent = audioEl.paused ? '▶' : '⏸';
+
 /* ---------------- detail sheets (word / ayah) ---------------- */
 function showSheet(html) { $('sheetContent').innerHTML = html; $('sheetBackdrop').hidden = false; $('wordSheet').hidden = false; }
 function hideSheet() { $('sheetBackdrop').hidden = true; $('wordSheet').hidden = true; }
@@ -706,7 +732,9 @@ function renderSurahDetail() {
     ['Para (Juz)', juzs.length > 1 ? `${juzs[0]}–${juzs[juzs.length - 1]}` : juzs[0]],
     ['Starts on page', s.ayahs[0].p], ['Rukus', rukus],
     ['Global ayahs', `${s.ayahs[0].g}–${s.ayahs[s.ayahs.length - 1].g}`]
-  ].map(([k, v]) => `<span class="chip">${k} <b>${v}</b></span>`).join('');
+  ].map(([k, v]) => `<div class="meta-item"><span class="meta-k">${k}:</span><span class="meta-v">${v}</span></div>`).join('');
+  const drs = $('detailReciterSel');
+  if (drs) drs.value = settings.reciter;
   $('detailStatus').textContent = '';
   $('detailAyahList').innerHTML = s.ayahs.map(x => `
     <div class="detail-ayah" data-n="${x.n}">
@@ -736,6 +764,19 @@ $('detailAyahList').addEventListener('click', e => {
 $('detailPrevBtn').addEventListener('click', () => { if (detailSi > 0) { detailSi--; renderSurahDetail(); window.scrollTo({ top: 0 }); } });
 $('detailNextBtn').addEventListener('click', () => { if (detailSi < 113) { detailSi++; renderSurahDetail(); window.scrollTo({ top: 0 }); } });
 $('detailReadBtn').addEventListener('click', () => openReader(detailSi, 1));
+$('detailReciterSel').addEventListener('change', e => { settings.reciter = e.target.value; applySettings(); stopAudio(); });
+$('detailBookmarkBtn').addEventListener('click', () => {
+  const g = Q.surahs[detailSi].ayahs[0].g;
+  if (!bookmarks.includes(g)) { bookmarks.push(g); save('tilawah.bookmarks.v1', bookmarks); $('detailStatus').textContent = 'Bookmarked Ayah 1 of this Surah — find it on Home.'; }
+  else $('detailStatus').textContent = 'Ayah 1 of this Surah is already bookmarked.';
+});
+$('detailShareBtn').addEventListener('click', async () => {
+  const s = Q.surahs[detailSi];
+  const data = { title: 'Tilawah', text: `Surah ${s.number} · ${s.en} — Tilawah`, url: location.href.split('#')[0] + '#surah' };
+  if (navigator.share) { try { await navigator.share(data); } catch (e) {} return; }
+  try { await navigator.clipboard.writeText(data.text + ' ' + data.url); $('detailStatus').textContent = 'Link copied — share it anywhere.'; }
+  catch (e) { $('detailStatus').textContent = data.url; }
+});
 $('detailPlayBtn').addEventListener('click', () => { showView('reader'); playSurahFrom(detailSi, 1); });
 $('detailWbwBtn').addEventListener('click', async () => { await ensureWords(); showView('reader'); if (!startWbw(detailSi, 1, 0)) playSurahFrom(detailSi, 1); });
 $('detailPracticeBtn').addEventListener('click', () => { setPractice(detailSi, 1, Math.min(3, Q.surahs[detailSi].ayahs.length)); showView('practice'); });

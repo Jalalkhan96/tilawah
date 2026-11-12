@@ -27,6 +27,8 @@
   </div>
 </header>
 
+<div class="tabs-shell">
+  <button class="tabs-arrow tabs-arrow-l" id="tabsPrevBtn" type="button" aria-label="Scroll navigation back">‹</button>
 <nav class="tabs" aria-label="Main">
   <button data-view="home" class="tab active">Home</button>
   <button data-view="reader" class="tab">Read</button>
@@ -45,6 +47,8 @@
   <button data-view="history" class="tab">History</button>
   <button data-view="settings" class="tab">Settings</button>
 </nav>
+  <button class="tabs-arrow tabs-arrow-r" id="tabsNextBtn" type="button" aria-label="Scroll navigation forward">›</button>
+</div>
 
 <main>
   <!-- ===================== HOME ===================== -->
@@ -142,63 +146,73 @@
     </div>
 
     <div class="player card" id="playerBar">
-      <div class="row between wrap">
-        <div>
-          <strong id="nowPlaying">No ayah selected</strong>
-          <div class="muted small" id="playerStatus">Tap an ayah, then Play. Played ayahs are cached for offline use.</div>
-        </div>
-        <span class="mode-chip" id="modeChip" hidden></span>
+      <span class="mode-chip player-mode-badge" id="modeChip" hidden></span>
+      <div class="player-head">
+        <strong id="nowPlaying">No ayah selected</strong>
+        <div class="muted small" id="playerStatus">Tap an ayah, then Play. Played ayahs are cached for offline use.</div>
       </div>
-      <div class="row wrap" style="margin-top:10px">
-        <button class="btn btn-primary" id="playBtn">▶ Play ayah</button>
-        <button class="btn" id="playSurahBtn">▶ Play Surah</button>
-        <button class="btn" id="wbwBtn">▶ Word by word</button>
-        <button class="btn" id="prevAyahBtn" title="Previous ayah">⏮ Prev</button>
-        <button class="btn" id="pauseBtn">⏸ Pause</button>
-        <button class="btn" id="nextAyahBtn" title="Next ayah">Next ⏭</button>
-        <button class="btn" id="stopBtn">⏹ Stop</button>
+      <div class="mode-segment" role="group" aria-label="Play mode">
+        <button class="seg-btn" id="playBtn" type="button">Ayah</button>
+        <button class="seg-btn" id="playSurahBtn" type="button">Surah</button>
+        <button class="seg-btn" id="wbwBtn" type="button">Word by word</button>
       </div>
-      <progress id="audioProgress" value="0" max="1"></progress>
+      <progress id="audioProgress" value="0" max="1" hidden></progress>
       <div class="row wrap seek-row">
         <input type="range" id="seekRange" min="0" max="1000" value="0" aria-label="Seek">
         <span class="small" id="timeLabel">0:00 / 0:00</span>
       </div>
-      <div class="row wrap small">
-        <label>Volume <input type="range" id="volRange" min="0" max="1" step="0.05" value="1" style="width:110px;vertical-align:middle"></label>
-        <label>Sleep timer <select id="sleepSel"><option value="0">Off</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label>
+      <div class="transport-row">
+        <button class="btn transport-btn" id="prevAyahBtn" type="button" title="Previous ayah">Prev</button>
+        <button class="transport-main" id="pauseBtn" type="button" aria-label="Play or pause">⏸</button>
+        <button class="btn transport-btn" id="nextAyahBtn" type="button" title="Next ayah">Next</button>
+        <button class="btn" id="stopBtn" hidden>⏹ Stop</button>
       </div>
-      <div class="row wrap small">
-        <label><input type="checkbox" id="autoAdvanceChk" checked> Auto next ayah</label>
+      <div class="player-controls-row small">
+        <label class="switch-label"><span class="switch"><input type="checkbox" id="autoAdvanceChk" checked><span class="switch-track"></span></span> Auto next ayah</label>
         <label>Repeat <select id="repeatSel"><option value="1">×1</option><option value="2">×2</option><option value="3">×3</option><option value="5">×5</option></select></label>
         <label>Speed <select id="speedSel"><option>0.75</option><option selected>1</option><option>1.25</option><option>1.5</option></select></label>
-        <button class="btn btn-small" id="ayahDetailBtn">Ayah details</button>
-        <button class="btn btn-small" id="bookmarkBtn">Bookmark ayah</button>
+        <label>Sleep timer <select id="sleepSel"><option value="0">Off</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></label>
+        <label class="vol-label">🔊 <input type="range" id="volRange" min="0" max="1" step="0.05" value="1" aria-label="Volume"></label>
+      </div>
+      <div class="player-actions-row">
+        <span class="player-actions-left">
+          <button class="btn btn-small" id="ayahDetailBtn">Ayah details</button>
+          <button class="btn btn-small" id="bookmarkBtn">Bookmark ayah</button>
+        </span>
         <button class="btn btn-small btn-primary" id="practiceBtn">Practice this ayah</button>
       </div>
-      <p class="muted small" id="highlightNote">Word highlighting follows the recitation: with Mishary Alafasy selected, each word lights up as it is spoken. With other reciters, the current ayah is highlighted. Word-by-word mode is exact for every word.</p>
+      <p class="player-footnote" id="highlightNote">Word highlighting follows the recitation: words light up as spoken.</p>
     </div>
   </section>
 
   <!-- ===================== SURAH DETAIL ===================== -->
   <section id="view-surah" class="view">
+    <div class="detail-nav-row">
+      <button class="btn btn-navpill" id="detailPrevBtn">← Prev</button>
+      <button class="btn btn-navpill" id="detailNextBtn">Next →</button>
+    </div>
     <div class="card surah-hero">
-      <div class="row between wrap">
-        <button class="btn" id="detailPrevBtn">← Prev</button>
-        <span class="muted small">Surah detail</span>
-        <button class="btn" id="detailNextBtn">Next →</button>
+      <div class="detail-top-row">
+        <label class="reciter-chip">Reciter:&nbsp;<select id="detailReciterSel" aria-label="Reciter"></select></label>
+        <span class="detail-icon-btns">
+          <button class="icon-btn" id="detailBookmarkBtn" type="button" title="Bookmark Ayah 1 of this Surah" aria-label="Bookmark this Surah"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.2L5 21V4a1 1 0 0 1 1-1z"/></svg></button>
+          <button class="icon-btn" id="detailShareBtn" type="button" title="Share this Surah" aria-label="Share this Surah"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M18 16.1c-.8 0-1.5.3-2 .8l-7.1-4.1c0-.2.1-.5.1-.8s0-.6-.1-.8L16 7.1c.5.5 1.2.8 2 .8a3.5 3.5 0 1 0-3.5-3.5c0 .3 0 .6.1.8L7.5 9.3a3.5 3.5 0 1 0 0 5.4l7.1 4.1a3.4 3.4 0 0 0-.1.8A3.5 3.5 0 1 0 18 16.1z"/></svg></button>
+        </span>
       </div>
       <div class="surah-hero-main">
         <div class="surah-medallion" id="detailMedallion">1</div>
         <div class="surah-hero-text">
           <h2 id="detailNameAr" class="arabic-title"></h2>
           <p class="detail-name" id="detailNameEn"></p>
-          <p class="muted" id="detailMeaning"></p>
+          <p class="muted" id="detailMeaning" hidden></p>
         </div>
       </div>
       <div class="chip-grid" id="detailMeta"></div>
-      <div class="row wrap" style="margin-top:14px">
+      <div class="detail-actions-primary">
         <button class="btn btn-primary" id="detailReadBtn">Read in Mushaf</button>
-        <button class="btn" id="detailPlayBtn">▶ Play whole Surah</button>
+        <button class="btn btn-gold-outline" id="detailPlayBtn">▶ Play whole Surah</button>
+      </div>
+      <div class="detail-actions-secondary">
         <button class="btn" id="detailWbwBtn">Word by word from Ayah 1</button>
         <button class="btn" id="detailPracticeBtn">Practice</button>
         <button class="btn" id="detailDownloadBtn">⬇ Audio for offline</button>

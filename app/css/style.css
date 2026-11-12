@@ -389,3 +389,83 @@ input[type="range"]::-moz-range-progress{height:10px;background:linear-gradient(
 input[type="range"]::-moz-range-thumb{width:54px;height:34px;border-radius:999px;background:#fff;border:none;box-shadow:0 1px 8px rgba(0,30,63,.20),0 0 2px rgba(0,9,20,.14);transition:transform .15s ease,background-color .15s ease,box-shadow .15s ease}
 input[type="range"]:active::-moz-range-thumb,
 input[type="range"].glassing::-moz-range-thumb{background:rgba(255,255,255,.30);box-shadow:inset 1px 1px 0 rgba(255,255,255,.45),inset 0 0 22px rgba(255,255,255,.55),inset -1px -1px 0 rgba(255,255,255,.30),0 1px 8px rgba(0,30,63,.12);transform:scale(1.1,.96)}
+
+/* ============ v6 — Google Flow redesigns, approved as-is (2026-11-11) ============
+   #1 Surah detail header · #2 audio player · #3 header/nav with fade edges
+   and scroll chevrons. Behaviour for #3's centre-on-select shipped earlier
+   in app.js (scrollActiveTabIntoCentre). */
+
+/* ----- #3: nav shell, fade edges, chevron arrows ----- */
+.tabs-shell{position:sticky;top:76px;z-index:29;display:flex;align-items:stretch;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);box-shadow:var(--shadow-sm)}
+.tabs-shell .tabs{position:static;flex:1;min-width:0;background:transparent;border-bottom:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%)}
+.tabs-arrow{flex:none;width:30px;border:none;background:transparent;color:var(--gold-ink);font-size:25px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:opacity .2s ease;padding:0}
+.tabs-arrow:hover{color:var(--ink)}
+.tabs-arrow.is-off{opacity:.22;pointer-events:none}
+@media (max-width:680px){.tabs-shell{top:60px}}
+
+/* ----- #1: Surah detail header ----- */
+.detail-nav-row{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}
+.btn-navpill{background:var(--emerald-grad);color:#f7f1de;border-color:transparent;border-radius:999px;padding:9px 22px;box-shadow:var(--shadow-sm);font-weight:700}
+.btn-navpill:hover{color:#f7f1de;filter:brightness(1.1)}
+.surah-hero{position:relative;overflow:hidden}
+.surah-hero::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M28 3 L53 28 L28 53 L3 28 Z' fill='none' stroke='%23c9a227' stroke-opacity='0.10'/%3E%3Ccircle cx='28' cy='28' r='2.5' fill='%23c9a227' fill-opacity='0.08'/%3E%3C/svg%3E");pointer-events:none}
+.surah-hero>*{position:relative;z-index:1}
+.detail-top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.reciter-chip{display:inline-flex;align-items:center;background:var(--card-soft);border:1px solid var(--line);border-radius:999px;padding:5px 8px 5px 16px;font-size:14px;font-weight:600;color:var(--muted)}
+.reciter-chip select{border:none;background:transparent;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;max-width:215px;padding:2px}
+.detail-icon-btns{display:inline-flex;gap:8px}
+.icon-btn{width:38px;height:38px;border-radius:11px;border:1.5px solid var(--gold);background:rgba(201,162,39,.08);color:var(--gold-ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.icon-btn:hover{background:rgba(201,162,39,.22)}
+.surah-medallion{border-radius:0;clip-path:polygon(50% 0%,65.3% 13%,85.4% 14.6%,87% 34.7%,100% 50%,87% 65.3%,85.4% 85.4%,65.3% 87%,50% 100%,34.7% 87%,14.6% 85.4%,13% 65.3%,0% 50%,13% 34.7%,14.6% 14.6%,34.7% 13%);border:none;box-shadow:none;filter:drop-shadow(0 6px 14px rgba(11,61,46,.35))}
+.surah-hero-text{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.surah-hero-text .detail-name{margin:0;font-size:clamp(20px,3.4vw,27px)}
+.surah-hero .chip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:12px;border-top:1px solid var(--line-soft)}
+.meta-item{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line-soft);border-left:1px solid var(--line-soft)}
+.meta-item:nth-child(3n+1){border-left:none}
+.meta-k{color:var(--muted);font-size:14px;white-space:nowrap}
+.meta-v{font-weight:800;color:var(--ink);font-size:15px;white-space:nowrap}
+.detail-actions-primary{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.detail-actions-primary .btn{flex:1 1 200px;padding:13px 16px}
+.btn-gold-outline{border:1.5px solid var(--gold);color:var(--gold-ink);background:rgba(201,162,39,.07);font-weight:700}
+.btn-gold-outline:hover{background:rgba(201,162,39,.18);color:var(--gold-ink)}
+.detail-actions-secondary{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.detail-actions-secondary .btn{flex:1 1 160px}
+@media (max-width:680px){
+  .surah-hero .chip-grid{grid-template-columns:repeat(2,1fr)}
+  .meta-item:nth-child(3n+1){border-left:1px solid var(--line-soft)}
+  .meta-item:nth-child(odd){border-left:none}
+}
+
+/* ----- #2: audio player ----- */
+.player-head{text-align:center}
+.player-head strong{font-size:clamp(19px,3vw,24px);font-weight:800;color:#fdf6dd}
+.player .player-mode-badge{position:absolute;top:14px;right:16px;z-index:2}
+.mode-segment{display:flex;justify-content:center;margin:12px auto 2px;background:rgba(255,255,255,.06);border:1.5px solid rgba(231,207,122,.55);border-radius:999px;padding:3px;width:fit-content;max-width:100%}
+.seg-btn{border:none;background:transparent;color:#f3df9e;font:inherit;font-size:14.5px;font-weight:700;padding:8px 20px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .18s ease,color .18s ease}
+.seg-btn:hover{color:#fff2c4}
+.seg-btn.seg-active{background:var(--gold-grad);color:#241a02}
+.transport-row{display:flex;align-items:center;justify-content:center;gap:18px;margin:8px 0 2px}
+.transport-btn{border-radius:999px;padding:10px 26px}
+.transport-main{width:74px;height:74px;flex:none;border-radius:50%;background:var(--gold-grad);border:none;color:#241a02;font-size:25px;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0}
+.transport-main:hover{filter:brightness(1.07)}
+.player-controls-row{display:flex;align-items:center;justify-content:space-between;gap:12px 18px;flex-wrap:wrap;margin-top:10px}
+.player-controls-row label{display:inline-flex;align-items:center;gap:7px}
+.switch{position:relative;display:inline-block;width:44px;height:24px;flex:none}
+.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.switch-track{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.25);transition:background .2s ease}
+.switch-track::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#f7f1de;transition:transform .2s ease,background .2s ease}
+.switch input:checked + .switch-track{background:var(--gold)}
+.switch input:checked + .switch-track::after{transform:translateX(20px);background:#241a02}
+.switch input:focus-visible + .switch-track{outline:2px solid var(--gold-soft);outline-offset:2px}
+.vol-label input[type="range"]{width:120px}
+.player-actions-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.player-actions-left{display:inline-flex;gap:8px;flex-wrap:wrap}
+.player-footnote{text-align:center;color:rgba(247,241,222,.88);font-size:13.5px;margin:14px 0 2px}
+@media (max-width:680px){
+  .seg-btn{padding:8px 12px;font-size:13.5px}
+  .transport-main{width:64px;height:64px;font-size:22px}
+  .transport-row{gap:12px}
+  .player-controls-row{justify-content:center}
+  .player-actions-row{justify-content:center}
+  .player .player-mode-badge{top:10px;right:10px}
+}
